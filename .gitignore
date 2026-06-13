@@ -1,0 +1,8 @@
+target/
+*.class
+*.jar
+.idea/
+.vscode/
+.env
+node_modules/
+__pycache__/
