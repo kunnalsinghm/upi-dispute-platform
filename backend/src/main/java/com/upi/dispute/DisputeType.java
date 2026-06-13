@@ -1,0 +1,9 @@
+package com.upi.dispute;
+
+public enum DisputeType {
+    WRONG_DEBIT,
+    DUPLICATE_TRANSACTION,
+    BENEFICIARY_NOT_CREDITED,
+    TRANSACTION_TIMEOUT,
+    TECHNICAL_DECLINE
+}

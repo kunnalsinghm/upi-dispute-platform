@@ -1,7 +1,4 @@
-version: '3.8'
-
 services:
-
   postgres:
     image: postgres:15
     container_name: upi_postgres
@@ -10,7 +7,7 @@ services:
       POSTGRES_USER: upi_user
       POSTGRES_PASSWORD: upi_pass
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -33,7 +30,6 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
 
   redis:
     image: redis:7-alpine
