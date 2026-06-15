@@ -11,10 +11,14 @@ import java.util.List;
 public class DisputeService {
 
     private final DisputeRepository disputeRepository;
+    private final DisputeRuleEngine ruleEngine;
 
     public Dispute createDispute(Dispute dispute) {
         log.info("Creating dispute for transaction: {}", dispute.getTransactionId());
-        return disputeRepository.save(dispute);
+        // Save first to get an ID
+        Dispute saved = disputeRepository.save(dispute);
+        // Then run rule engine
+        return ruleEngine.evaluate(saved);
     }
 
     public List<Dispute> getAllDisputes() {
@@ -24,5 +28,9 @@ public class DisputeService {
     public Dispute getDisputeById(String id) {
         return disputeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Dispute not found: " + id));
+    }
+
+    public List<Dispute> getDisputesByStatus(DisputeStatus status) {
+        return disputeRepository.findByStatus(status);
     }
 }

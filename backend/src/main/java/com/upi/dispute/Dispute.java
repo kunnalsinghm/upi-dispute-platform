@@ -1,62 +1,44 @@
 package com.upi.dispute;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "disputes")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Dispute {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    // The original UPI transaction reference
     @Column(nullable = false, unique = true)
     private String transactionId;
 
-    // Who raised the dispute
     @Column(nullable = false)
     private String raisedByUpiId;
 
-    // Who received the money
     @Column(nullable = false)
     private String beneficiaryUpiId;
 
-    // Amount in dispute
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal amount;
 
-    // Category of dispute
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private DisputeType disputeType;
 
-    // Current status
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private DisputeStatus status;
 
-    // Which bank/PSP is involved
     @Column(nullable = false)
     private String bankCode;
 
-    // Description from the user
     private String description;
 
-    // ML classifier confidence score (0.0 to 1.0)
     private Double mlConfidenceScore;
 
-    // Timestamps
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
@@ -69,4 +51,41 @@ public class Dispute {
             this.status = DisputeStatus.OPEN;
         }
     }
+
+    // Getters and Setters
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+
+    public String getTransactionId() { return transactionId; }
+    public void setTransactionId(String transactionId) { this.transactionId = transactionId; }
+
+    public String getRaisedByUpiId() { return raisedByUpiId; }
+    public void setRaisedByUpiId(String raisedByUpiId) { this.raisedByUpiId = raisedByUpiId; }
+
+    public String getBeneficiaryUpiId() { return beneficiaryUpiId; }
+    public void setBeneficiaryUpiId(String beneficiaryUpiId) { this.beneficiaryUpiId = beneficiaryUpiId; }
+
+    public BigDecimal getAmount() { return amount; }
+    public void setAmount(BigDecimal amount) { this.amount = amount; }
+
+    public DisputeType getDisputeType() { return disputeType; }
+    public void setDisputeType(DisputeType disputeType) { this.disputeType = disputeType; }
+
+    public DisputeStatus getStatus() { return status; }
+    public void setStatus(DisputeStatus status) { this.status = status; }
+
+    public String getBankCode() { return bankCode; }
+    public void setBankCode(String bankCode) { this.bankCode = bankCode; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+
+    public Double getMlConfidenceScore() { return mlConfidenceScore; }
+    public void setMlConfidenceScore(Double mlConfidenceScore) { this.mlConfidenceScore = mlConfidenceScore; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public LocalDateTime getResolvedAt() { return resolvedAt; }
+    public void setResolvedAt(LocalDateTime resolvedAt) { this.resolvedAt = resolvedAt; }
 }
