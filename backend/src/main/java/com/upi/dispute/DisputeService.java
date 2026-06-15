@@ -1,24 +1,35 @@
 package com.upi.dispute;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
-@Slf4j
 public class DisputeService {
 
     private final DisputeRepository disputeRepository;
     private final DisputeRuleEngine ruleEngine;
+    private final DisputeProducer producer;
+
+    public DisputeService(DisputeRepository disputeRepository,
+                          DisputeRuleEngine ruleEngine,
+                          DisputeProducer producer) {
+        this.disputeRepository = disputeRepository;
+        this.ruleEngine = ruleEngine;
+        this.producer = producer;
+    }
 
     public Dispute createDispute(Dispute dispute) {
-        log.info("Creating dispute for transaction: {}", dispute.getTransactionId());
-        // Save first to get an ID
+        // Save immediately
         Dispute saved = disputeRepository.save(dispute);
-        // Then run rule engine
-        return ruleEngine.evaluate(saved);
+
+        // Publish to Kafka (async processing)
+        producer.publishDisputeCreated(saved);
+
+        // Also run rule engine synchronously for immediate response
+        Dispute resolved = ruleEngine.evaluate(saved);
+        producer.publishDisputeResolved(resolved);
+
+        return resolved;
     }
 
     public List<Dispute> getAllDisputes() {
