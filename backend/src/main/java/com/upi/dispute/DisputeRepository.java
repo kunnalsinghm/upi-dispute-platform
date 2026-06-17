@@ -7,6 +7,7 @@ import java.util.List;
 @Repository
 public interface DisputeRepository extends JpaRepository<Dispute, String> {
     List<Dispute> findByTransactionIdAndIdNot(String transactionId, String id);
+    List<Dispute> findByTransactionId(String transactionId);
     List<Dispute> findByStatus(DisputeStatus status);
     List<Dispute> findByBankCode(String bankCode);
 }
