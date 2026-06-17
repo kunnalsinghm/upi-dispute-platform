@@ -31,3 +31,10 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Crash logs and temp files ###
+*.log
+hs_err_pid*
+replay_pid*
+*.bak
+*.zip
