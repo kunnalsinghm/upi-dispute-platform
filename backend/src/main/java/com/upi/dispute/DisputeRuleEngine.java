@@ -1,26 +1,26 @@
 package com.upi.dispute;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
-@Slf4j
 public class DisputeRuleEngine {
 
     private final List<DisputeRule> rules;
     private final DisputeRepository disputeRepository;
 
+    public DisputeRuleEngine(List<DisputeRule> rules, DisputeRepository disputeRepository) {
+        this.rules = rules;
+        this.disputeRepository = disputeRepository;
+    }
+
     public Dispute evaluate(Dispute dispute) {
-        log.info("Evaluating dispute: {} type: {}", dispute.getId(), dispute.getDisputeType());
+        System.out.println("Evaluating dispute: " + dispute.getId() + " type: " + dispute.getDisputeType());
 
         for (DisputeRule rule : rules) {
             if (rule.applies(dispute)) {
-                log.info("Applying rule: {}", rule.getClass().getSimpleName());
-
+                System.out.println("Applying rule: " + rule.getClass().getSimpleName());
                 DisputeResolutionResult result = rule.resolve(dispute);
                 dispute.setStatus(result.getNewStatus());
                 dispute.setMlConfidenceScore(result.getConfidenceScore());
@@ -28,18 +28,16 @@ public class DisputeRuleEngine {
 
                 if (result.isResolved()) {
                     dispute.setResolvedAt(LocalDateTime.now());
-                    log.info("Dispute {} auto-resolved: {}", dispute.getId(), result.getResolutionReason());
+                    System.out.println("Dispute " + dispute.getId() + " auto-resolved: " + result.getResolutionReason());
                 } else {
-                    log.info("Dispute {} sent to: {} - {}", dispute.getId(), result.getNewStatus(), result.getResolutionReason());
+                    System.out.println("Dispute " + dispute.getId() + " routed to: " + result.getNewStatus());
                 }
-
                 return disputeRepository.save(dispute);
             }
         }
 
-        // No rule matched — send to manual review
         dispute.setStatus(DisputeStatus.MANUAL_REVIEW);
-        log.warn("No rule matched for dispute: {} - routing to manual review", dispute.getId());
+        System.out.println("No rule matched for dispute: " + dispute.getId());
         return disputeRepository.save(dispute);
     }
 }

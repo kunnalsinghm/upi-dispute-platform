@@ -9,23 +9,34 @@ public class DisputeService {
     private final DisputeRepository disputeRepository;
     private final DisputeRuleEngine ruleEngine;
     private final DisputeProducer producer;
+    private final MlClassifierClient mlClassifierClient;
 
     public DisputeService(DisputeRepository disputeRepository,
                           DisputeRuleEngine ruleEngine,
-                          DisputeProducer producer) {
+                          DisputeProducer producer,
+                          MlClassifierClient mlClassifierClient) {
         this.disputeRepository = disputeRepository;
         this.ruleEngine = ruleEngine;
         this.producer = producer;
+        this.mlClassifierClient = mlClassifierClient;
     }
 
     public Dispute createDispute(Dispute dispute) {
-        // Save immediately
+        // Call ML classifier first (if available)
+        MlClassificationResult mlResult = mlClassifierClient.classify(dispute);
+        if (mlResult.getConfidenceScore() > 0) {
+            dispute.setMlConfidenceScore(mlResult.getConfidenceScore());
+            System.out.println("ML classified as: " + mlResult.getPredictedType()
+                    + " (" + mlResult.getConfidenceScore() + ")");
+        }
+
+        // Save to DB
         Dispute saved = disputeRepository.save(dispute);
 
-        // Publish to Kafka (async processing)
+        // Publish to Kafka async
         producer.publishDisputeCreated(saved);
 
-        // Also run rule engine synchronously for immediate response
+        // Run rule engine synchronously for immediate response
         Dispute resolved = ruleEngine.evaluate(saved);
         producer.publishDisputeResolved(resolved);
 
